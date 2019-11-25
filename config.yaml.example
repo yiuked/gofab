@@ -1,0 +1,59 @@
+version: 1.0.0
+client:
+  organization: org1
+  logging:
+    level: info
+  cryptoconfig:
+    path: /home/vagrant/fabric/crypto-config
+  credentialStore:
+    path: "/tmp/hfc-kvs"
+    cryptoStore:
+      path: /tmp/msp
+  BCCSP:
+    security:
+      enabled: true
+      default:
+        provider: "SW"
+      hashAlgorithm: "SHA2"
+      softVerify: true
+      level: 256
+  tlsCerts:
+    systemCertPool: false
+    client:
+      key:
+        path: /home/vagrant/fabric/crypto-config/peerOrganizations/org1.36sn.com/users/User1@org1.36sn.com/tls/client.key
+      cert:
+        path: /home/vagrant/fabric/crypto-config/peerOrganizations/org1.36sn.com/users/User1@org1.36sn.com/tls/client.crt
+channels:
+  # 管道名
+  zsjr:
+    peers:
+      peer0.org1.36sn.com:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+    policies:
+      queryChannelConfig:
+        minResponses: 1
+        maxTargets: 1
+        retryOpts:
+          attempts: 5
+          initialBackoff: 500ms
+          maxBackoff: 5s
+          backoffFactor: 2.0
+organizations:
+  org1:
+    mspid: Org1MSP
+    cryptoPath:  peerOrganizations/org1.36sn.com/users/{username}@org1.36sn.com/msp
+    peers:
+      - peer0.org1.36sn.com
+peers:
+  peer0.org1.36sn.com:
+    url: peer0.org1.36sn.com:7051
+    grpcOptions:
+      ssl-target-name-override: peer0.org1.36sn.com
+      fail-fast: false
+      allow-insecure: false
+    tlsCACerts:
+      path: /home/vagrant/fabric/crypto-config/peerOrganizations/org1.36sn.com/tlsca/tlsca.org1.36sn.com-cert.pem
