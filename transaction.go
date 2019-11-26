@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-func GetTransactionByTxID(txID string, client ledger.Client, options ...ledger.RequestOption) ([]string, error) {
+func GetTransactionByTxID(txID string, client *ledger.Client, options ...ledger.RequestOption) ([]string, error) {
 	tx, err := client.QueryTransaction(fab.TransactionID(txID), options...)
 	if err != nil {
 		log.Println(err)

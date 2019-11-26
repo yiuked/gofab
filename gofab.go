@@ -7,7 +7,6 @@ import (
 
 func SDK(configPath string) *fabsdk.FabricSDK {
 	sdk, err := fabsdk.New(config.FromFile(configPath))
-	defer sdk.Close()
 	ErrFinal(err)
 	return sdk
 }

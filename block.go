@@ -8,7 +8,7 @@ import (
 	"log"
 )
 
-func GetBlocksByTxId(client ledger.Client, hash string) (Block, error) {
+func GetBlocksByTxId(client *ledger.Client, hash string) (Block, error) {
 	blockResource, err := client.QueryBlockByTxID(fab.TransactionID(hash))
 	if err != nil {
 		return Block{}, fmt.Errorf("QueryBlockByTxID err :%s", err.Error())
@@ -33,7 +33,7 @@ func GetBlocksByTxId(client ledger.Client, hash string) (Block, error) {
 	return block, nil
 }
 
-func GetInfo(client ledger.Client, options ...ledger.RequestOption) (*fab.BlockchainInfoResponse, error) {
+func GetInfo(client *ledger.Client, options ...ledger.RequestOption) (*fab.BlockchainInfoResponse, error) {
 	info, err := client.QueryInfo(options...)
 	if err != nil {
 		log.Println(err)
@@ -42,7 +42,7 @@ func GetInfo(client ledger.Client, options ...ledger.RequestOption) (*fab.Blockc
 	return info, nil
 }
 
-func GetBlock(blockNumber uint64, client ledger.Client, options ...ledger.RequestOption) (Block, error) {
+func GetBlock(blockNumber uint64, client *ledger.Client, options ...ledger.RequestOption) (Block, error) {
 	blockResource, err := client.QueryBlock(blockNumber, options...)
 	if err != nil {
 		return Block{}, fmt.Errorf("QueryBlockByTxID err :%s", err.Error())
@@ -67,7 +67,7 @@ func GetBlock(blockNumber uint64, client ledger.Client, options ...ledger.Reques
 	return block, nil
 }
 
-func GetBlockByHash(blockHash []byte, client ledger.Client, options ...ledger.RequestOption) (Block, error) {
+func GetBlockByHash(blockHash []byte, client *ledger.Client, options ...ledger.RequestOption) (Block, error) {
 	blockResource, err := client.QueryBlockByHash(blockHash, options...)
 	if err != nil {
 		return Block{}, fmt.Errorf("QueryBlockByTxID err :%s", err.Error())
@@ -92,7 +92,7 @@ func GetBlockByHash(blockHash []byte, client ledger.Client, options ...ledger.Re
 	return block, nil
 }
 
-func GetConfig(client ledger.Client, options ...ledger.RequestOption) (fab.ChannelCfg, error) {
+func GetConfig(client *ledger.Client, options ...ledger.RequestOption) (fab.ChannelCfg, error) {
 	cfg, err := client.QueryConfig(options...)
 	if err != nil {
 		log.Println(err)
