@@ -13,7 +13,7 @@ func GetBlocksByTxId(client *ledger.Client, hash string) (Block, error) {
 	if err != nil {
 		return Block{}, fmt.Errorf("QueryBlockByTxID err :%s", err.Error())
 	}
-	listTx := make([]TransactionDetail, 0)
+	listTx := make([]Transaction, 0)
 	for _, data := range blockResource.Data.Data {
 		txDetail, err := DecodeTransactionFromBlock(data, true)
 		if err != nil {
@@ -47,7 +47,7 @@ func GetBlock(blockNumber uint64, client *ledger.Client, options ...ledger.Reque
 	if err != nil {
 		return Block{}, fmt.Errorf("QueryBlockByTxID err :%s", err.Error())
 	}
-	listTx := make([]TransactionDetail, 0)
+	listTx := make([]Transaction, 0)
 	for _, data := range blockResource.Data.Data {
 		txDetail, err := DecodeTransactionFromBlock(data, true)
 		if err != nil {
@@ -72,7 +72,7 @@ func GetBlockByHash(blockHash []byte, client *ledger.Client, options ...ledger.R
 	if err != nil {
 		return Block{}, fmt.Errorf("QueryBlockByTxID err :%s", err.Error())
 	}
-	listTx := make([]TransactionDetail, 0)
+	listTx := make([]Transaction, 0)
 	for _, data := range blockResource.Data.Data {
 		txDetail, err := DecodeTransactionFromBlock(data, true)
 		if err != nil {

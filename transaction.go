@@ -23,8 +23,8 @@ func GetTransactionByTxID(txID string, client *ledger.Client, options ...ledger.
 }
 
 // 从SDK中Block.BlockDara.Data中提取交易具体信息
-func DecodeTransactionFromBlock(data []byte, needArgs bool) (*TransactionDetail, error) {
-	txd := &TransactionDetail{}
+func DecodeTransactionFromBlock(data []byte, needArgs bool) (*Transaction, error) {
+	txd := &Transaction{}
 	env, err := ptUtils.GetEnvelopeFromBlock(data)
 	if err != nil {
 		return txd, err
@@ -32,45 +32,15 @@ func DecodeTransactionFromBlock(data []byte, needArgs bool) (*TransactionDetail,
 	if env == nil {
 		return txd, errors.New("nil envelope")
 	}
-	payload, err := ptUtils.GetPayload(env)
+	args, err := DecodeTransaction(env)
+
 	if err != nil {
 		return txd, err
 	}
-	channelHeaderBytes := payload.Header.ChannelHeader
+
 	channelHeader := &ptCommon.ChannelHeader{}
 
-	if err := proto.Unmarshal(channelHeaderBytes, channelHeader); err != nil {
-		return txd, err
-	}
-	var (
-		args []string
-	)
-	if needArgs {
-		tx, err := ptUtils.GetTransaction(payload.Data)
-		if err != nil {
-			return txd, err
-		}
-		actionPayload, err := ptUtils.GetChaincodeActionPayload(tx.Actions[0].Payload)
-		if err != nil {
-			return txd, err
-		}
-		propPayload := &ptPeer.ChaincodeProposalPayload{}
-		if err := proto.Unmarshal(actionPayload.ChaincodeProposalPayload, propPayload); err != nil {
-			return txd, err
-		}
-		invokeSpec := &ptPeer.ChaincodeInvocationSpec{}
-		err = proto.Unmarshal(propPayload.Input, invokeSpec)
-		if err != nil {
-			return txd, err
-		}
-		if invokeSpec.ChaincodeSpec != nil && invokeSpec.ChaincodeSpec.Input != nil && invokeSpec.ChaincodeSpec.Input.Args != nil {
-			for _, v := range invokeSpec.ChaincodeSpec.Input.Args {
-				args = append(args, string(v))
-			}
-		}
-
-	}
-	result := &TransactionDetail{
+	result := &Transaction{
 		TransactionId: channelHeader.TxId,
 		Args:          args,
 		CreateTime:    time.Unix(channelHeader.Timestamp.Seconds, 0).Format("2006-01-02 15:04:05"),
