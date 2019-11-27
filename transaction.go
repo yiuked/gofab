@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-func GetTransactionByTxID(txID string, client *ledger.Client, options ...ledger.RequestOption) ([]string, error) {
+func GetTransactionByTxID(txID string, client *ledger.Client, options ...ledger.RequestOption) (*Transaction, error) {
 	tx, err := client.QueryTransaction(fab.TransactionID(txID), options...)
 	if err != nil {
 		log.Println(err)
@@ -29,30 +29,21 @@ func DecodeTransactionFromBlock(data []byte, needArgs bool) (*Transaction, error
 	if err != nil {
 		return txd, err
 	}
-	if env == nil {
-		return txd, errors.New("nil envelope")
-	}
-	args, err := DecodeTransaction(env)
-
-	if err != nil {
-		return txd, err
-	}
-
-	channelHeader := &ptCommon.ChannelHeader{}
-
-	result := &Transaction{
-		TransactionId: channelHeader.TxId,
-		Args:          args,
-		CreateTime:    time.Unix(channelHeader.Timestamp.Seconds, 0).Format("2006-01-02 15:04:05"),
-	}
-	return result, nil
+	return DecodeTransaction(env)
 }
 
-func DecodeTransaction(e *ptCommon.Envelope) ([]string, error) {
+func DecodeTransaction(e *ptCommon.Envelope) (*Transaction, error) {
 	args := make([]string, 0)
 
 	payload, err := ptUtils.GetPayload(e)
 	if err != nil {
+		return nil, err
+	}
+
+	channelHeaderBytes := payload.Header.ChannelHeader
+	channelHeader := &ptCommon.ChannelHeader{}
+
+	if err := proto.Unmarshal(channelHeaderBytes, channelHeader); err != nil {
 		return nil, err
 	}
 
@@ -80,5 +71,11 @@ func DecodeTransaction(e *ptCommon.Envelope) ([]string, error) {
 	for _, v := range invokeSpec.ChaincodeSpec.Input.Args {
 		args = append(args, string(v))
 	}
-	return args, nil
+
+	result := &Transaction{
+		TransactionId: channelHeader.TxId,
+		Args:          args,
+		CreateTime:    time.Unix(channelHeader.Timestamp.Seconds, 0).Format("2006-01-02 15:04:05"),
+	}
+	return result, nil
 }
